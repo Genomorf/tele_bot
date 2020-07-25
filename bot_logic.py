@@ -6,7 +6,7 @@ import requests
 import telebot
 from datetime import datetime
 
-# constants
+# constantss
 Text = ''
 GroupId = "197381393"
 ChatId = "-499017057"
