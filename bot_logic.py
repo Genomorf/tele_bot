@@ -6,8 +6,11 @@ import requests
 import telebot
 from datetime import datetime
 import threading
+import logging
+logging.basicConfig(format=u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
+                    filename='/home/gena/tele_bot/logs/bot.log')
 
-# constantss
+# constants
 Text = ''
 D = "197381393"
 V = "139197081"
@@ -257,22 +260,11 @@ def listen():
                                   f'разблокировал(а) пользователя <a href="https://vk.com/{urlid}'
                                   f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a> ',
                              parse_mode='HTML', disable_web_page_preview=True)
-
-        # if event.type == VkBotEventType.GR:
-        #     print("O")
-        #     User, urlid = type_of_user(event.obj.user_id)
-        #     changes_dict = {"title": "название", "description": "описание", "access": "тип группы",
-        #                "screen_name": "короткий адрес", "public_category": "категорию публичной страницы",
-        #                "public_subcategory": "подкатегорию публичной страницы",
-        #                "age_limits": "возрастные ограничения", "website": "веб-сайт",
-        #                "enable_status_default": "статус", "enable_audio": "аудио", "enable_photo": "фото",
-        #                "enable_video": "видео", "enable_market": "маркет"}
-        #     bot.send_message(chat_id=ChatId, text="AAAA")
-                             # text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
-                             #      f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a> '
-                             #      f'изменил(а) {changes_dict[event.obj.changes]} c {event.obj.old_value}'
-                             #      f'на {event.obj.new_value}.',
-                             # parse_mode='HTML', disable_web_page_preview=True)
-
-threading.Thread(target=polling).start()
-threading.Thread(target=listen).start()
+try:
+    threading.Thread(target=polling).start()
+except Exception as e:
+    logging.exception("POLLING EXCEPTION BLOCK")
+try:
+    threading.Thread(target=listen).start()
+except Exception as e:
+    logging.exception("LISTEN EXCEPTION BLOCK")
