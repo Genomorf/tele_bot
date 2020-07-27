@@ -16,13 +16,13 @@ logging.basicConfig(format=u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(a
 Text = ''
 D = "197381393"
 V = "139197081"
-GroupId = D
+GroupId = V
 ChatId = "-499017057"
-token1 = "fdf63f1dae61a44e0a285c4c5e977041a38fb1ac98445f835879c49fb3f7513089320970689db9ebd6da2"
-token2 = "ed7f1b64be582e8a81a824b0a5572d9b65f336aa726c58915583419ebfa66c47e004f191d4201ae24f8f5"
+token1D = "fdf63f1dae61a44e0a285c4c5e977041a38fb1ac98445f835879c49fb3f7513089320970689db9ebd6da2"
+token2V = "ed7f1b64be582e8a81a824b0a5572d9b65f336aa726c58915583419ebfa66c47e004f191d4201ae24f8f5"
 # AUTH
 bot = telebot.TeleBot("721671579:AAFR4Fpn-xkJnyr8cDunU9fXRvCE7QsNlB8")
-vk_session = vk_api.VkApi(token=token1)
+vk_session = vk_api.VkApi(token=token2V)
 vk = vk_session.get_api()
 longpoll = VkBotLongPoll(vk_session, GroupId)
 
