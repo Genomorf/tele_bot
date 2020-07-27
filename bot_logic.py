@@ -29,7 +29,7 @@ longpoll = VkBotLongPoll(vk_session, GroupId)
 #WEBHOOK
 
 WEBHOOK_HOST = '83.220.175.88'
-WEBHOOK_PORT = 80 # 443, 80, 88 или 8443 (порт должен быть открыт!)
+WEBHOOK_PORT = 443 # 443, 80, 88 или 8443 (порт должен быть открыт!)
 WEBHOOK_LISTEN = '0.0.0.0'  # На некоторых серверах придется указывать такой же IP, что и выше
 
 WEBHOOK_SSL_CERT = '../webhook_cert.pem'  # Путь к сертификату
@@ -289,7 +289,7 @@ def listen():
                              parse_mode='HTML', disable_web_page_preview=True)
          
 @bot.message_handler(commands=['check'])
-    def send_check_message(message):
+def send_check_message(message):
         bot.send_message(chat_id=ChatId, text='OK')
       
 bot.remove_webhook()
@@ -312,5 +312,4 @@ try:
     threading.Thread(target=Webhook_listen).start()
 except Exception as e:
     logging.exception("LISTEN EXCEPTION BLOCK")
-if threading.Thread.is_alive(t1) == False:
-    bot.send_message(chat_id=ChatId, text="Bot is dead")
+
