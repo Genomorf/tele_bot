@@ -7,23 +7,54 @@ import telebot
 from datetime import datetime
 import threading
 import logging
+import cherrypy
 logging.basicConfig(format=u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
-                    filename='/home/gena/tele_bot/logs/bot.log')
+                    filename='/home/gena/tele_bot/logs/bot.log', level=logging.INFO)
 
-# constants
+# CONSTANTS
+
 Text = ''
 D = "197381393"
 V = "139197081"
-GroupId = V
+GroupId = D
 ChatId = "-499017057"
 token1 = "fdf63f1dae61a44e0a285c4c5e977041a38fb1ac98445f835879c49fb3f7513089320970689db9ebd6da2"
 token2 = "ed7f1b64be582e8a81a824b0a5572d9b65f336aa726c58915583419ebfa66c47e004f191d4201ae24f8f5"
 # AUTH
 bot = telebot.TeleBot("721671579:AAFR4Fpn-xkJnyr8cDunU9fXRvCE7QsNlB8")
-vk_session = vk_api.VkApi(token=token2)
+vk_session = vk_api.VkApi(token=token1)
 vk = vk_session.get_api()
 longpoll = VkBotLongPoll(vk_session, GroupId)
 
+#WEBHOOK
+
+WEBHOOK_HOST = '83.220.175.88'
+WEBHOOK_PORT = 80 # 443, 80, 88 или 8443 (порт должен быть открыт!)
+WEBHOOK_LISTEN = '0.0.0.0'  # На некоторых серверах придется указывать такой же IP, что и выше
+
+WEBHOOK_SSL_CERT = '../webhook_cert.pem'  # Путь к сертификату
+WEBHOOK_SSL_PRIV = '../webhook_pkey.pem'  # Путь к приватному ключу
+
+WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
+WEBHOOK_URL_PATH = "/%s/" % (token1)
+
+
+class WebhookServer(object):
+    @cherrypy.expose
+    def index(self):
+        if 'content-length' in cherrypy.request.headers and \
+                        'content-type' in cherrypy.request.headers and \
+                        cherrypy.request.headers['content-type'] == 'application/json':
+            length = int(cherrypy.request.headers['content-length'])
+            json_string = cherrypy.request.body.read(length).decode("utf-8")
+            update = telebot.types.Update.de_json(json_string)
+            # Эта функция обеспечивает проверку входящего сообщения
+            bot.process_new_updates([update])
+            return ''
+        else:
+            raise cherrypy.HTTPError(403)
+            
+            
 def type_of_user(userid):
 
     if str(userid)[0] == "-":
@@ -39,11 +70,7 @@ def type_of_user(userid):
     return (User, urlid)
 
 
-def polling():
-    @bot.message_handler(commands=['check'])
-    def send_check_message(message):
-        bot.send_message(chat_id=ChatId, text='OK')
-    bot.polling()
+
 def listen():
     for event in longpoll.listen():
 
@@ -260,11 +287,29 @@ def listen():
                                   f'разблокировал(а) пользователя <a href="https://vk.com/{urlid}'
                                   f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a> ',
                              parse_mode='HTML', disable_web_page_preview=True)
-try:
-    threading.Thread(target=polling).start()
-except Exception as e:
-    logging.exception("POLLING EXCEPTION BLOCK")
-try:
-    threading.Thread(target=listen).start()
-except Exception as e:
-    logging.exception("LISTEN EXCEPTION BLOCK")
+            
+@bot.message_handler(commands=['check'])
+    def send_check_message(message):
+        bot.send_message(chat_id=ChatId, text='OK')
+      
+bot.remove_webhook()
+bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH,
+                certificate=open(WEBHOOK_SSL_CERT, 'r'))
+cherrypy.config.update({
+    'server.socket_host': WEBHOOK_LISTEN,
+    'server.socket_port': WEBHOOK_PORT,
+    'server.ssl_module': 'builtin',
+    'server.ssl_certificate': WEBHOOK_SSL_CERT,
+    'server.ssl_private_key': WEBHOOK_SSL_PRIV
+})
+cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})
+# try:
+#     threading.Thread(target=polling).start()
+# except Exception as e:
+#     logging.exception("POLLING EXCEPTION BLOCK")
+# try:
+#     threading.Thread(target=listen).start()
+# except Exception as e:
+#     logging.exception("LISTEN EXCEPTION BLOCK")
+# if threading.Thread.is_alive(t1) == False:
+#     bot.send_message(chat_id=ChatId, text="Bot is dead")
