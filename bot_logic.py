@@ -302,14 +302,14 @@ cherrypy.config.update({
     'server.ssl_certificate': WEBHOOK_SSL_CERT,
     'server.ssl_private_key': WEBHOOK_SSL_PRIV
 })
-def Webhook_listen():
-  cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})
-try:
-    threading.Thread(target=polling).start()
-except Exception as e:
-    logging.exception("POLLING EXCEPTION BLOCK")
-try:
-    threading.Thread(target=Webhook_listen).start()
-except Exception as e:
-    logging.exception("LISTEN EXCEPTION BLOCK")
+#def Webhook_listen():
+cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})
+# try:
+#     threading.Thread(target=polling).start()
+# except Exception as e:
+#     logging.exception("POLLING EXCEPTION BLOCK")
+# try:
+#     threading.Thread(target=Webhook_listen).start()
+# except Exception as e:
+#     logging.exception("LISTEN EXCEPTION BLOCK")
 
