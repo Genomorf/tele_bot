@@ -287,7 +287,7 @@ def listen():
                                   f'разблокировал(а) пользователя <a href="https://vk.com/{urlid}'
                                   f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a> ',
                              parse_mode='HTML', disable_web_page_preview=True)
-            
+         
 @bot.message_handler(commands=['check'])
     def send_check_message(message):
         bot.send_message(chat_id=ChatId, text='OK')
@@ -302,14 +302,15 @@ cherrypy.config.update({
     'server.ssl_certificate': WEBHOOK_SSL_CERT,
     'server.ssl_private_key': WEBHOOK_SSL_PRIV
 })
-cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})
-# try:
-#     threading.Thread(target=polling).start()
-# except Exception as e:
-#     logging.exception("POLLING EXCEPTION BLOCK")
-# try:
-#     threading.Thread(target=listen).start()
-# except Exception as e:
-#     logging.exception("LISTEN EXCEPTION BLOCK")
-# if threading.Thread.is_alive(t1) == False:
-#     bot.send_message(chat_id=ChatId, text="Bot is dead")
+def Webhook_listen():
+  cherrypy.quickstart(WebhookServer(), WEBHOOK_URL_PATH, {'/': {}})
+try:
+    threading.Thread(target=polling).start()
+except Exception as e:
+    logging.exception("POLLING EXCEPTION BLOCK")
+try:
+    threading.Thread(target=Webhook_listen).start()
+except Exception as e:
+    logging.exception("LISTEN EXCEPTION BLOCK")
+if threading.Thread.is_alive(t1) == False:
+    bot.send_message(chat_id=ChatId, text="Bot is dead")
