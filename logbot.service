@@ -2,8 +2,8 @@ Description=Telegram Bot Log
 After=network.target
 
 [Service]
-User=gena
-Group=gena
+User=root
+Group=root
 
 WorkingDirectory=/home/gena/tele_bot/
 Environment="PYTHONPATH=/home/gena/tele_bot/"
