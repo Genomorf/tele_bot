@@ -32,7 +32,7 @@ WEBHOOK_LISTEN = '0.0.0.0'  # На некоторых серверах прид�
 WEBHOOK_SSL_CERT = '../webhook_cert.pem'  # Путь к сертификату
 WEBHOOK_SSL_PRIV = '../webhook_pkey.pem'  # Путь к приватному ключу
 WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
-WEBHOOK_URL_PATH = "/%s/" % ("937690414:AAG5Rnnbmc8ovvo9PCyVorZ1W_rr2d6fh24")
+WEBHOOK_URL_PATH = "/%s/" % ("721671579:AAFR4Fpn-xkJnyr8cDunU9fXRvCE7QsNlB8")
 
 # logger 
 logging.basicConfig(format=u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
