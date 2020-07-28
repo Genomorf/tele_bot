@@ -209,8 +209,9 @@ def listen():
             # User info
             User, urlid = type_of_user(event.obj.from_id)
             media = what_media(event.obj.attachments)
-            try:
-                if event.obj.reply_to_comment:
+
+            if event.obj.reply_to_comment:
+                try:
                     bot.send_message(chat_id=CHAT_ID,
                                      text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
                                           f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a>'
@@ -219,8 +220,8 @@ def listen():
                                           f'{event.obj.reply_to_commet}">фотографии:</a> '
                                           f'<pre>{event.object.text}</pre> {media}',
                                      parse_mode='HTML', disable_web_page_preview=True)
-            except Exception as e:
-                logging.exception(f'PHOTO COMMENT REPLY TO USER dropped with: \n {e}')
+                except Exception as e:
+                    logging.exception(f'PHOTO COMMENT REPLY TO USER dropped with: \n {e}')
             else:
                 try:
                     bot.send_message(chat_id=CHAT_ID,
@@ -276,8 +277,9 @@ def listen():
             # User info
             User, urlid = type_of_user(event.obj.from_id)
             media = what_media(event.obj.attachments)
-            try:
-                if event.obj.reply_to_comment:
+
+            if event.obj.reply_to_comment:
+                try:
                     bot.send_message(chat_id=CHAT_ID,
                                      text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
                                           f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
@@ -286,8 +288,8 @@ def listen():
                                           f'{event.obj.reply_to_comment}">видеозаписи:</a>'
                                           f' <pre>{event.obj.text}</pre> {media}',
                                      parse_mode='HTML', disable_web_page_preview=True)
-            except Exception as e:
-                logging.exception(f'VIDEO NEW COMMENT REPLY TO USER dropped with: \n {e}')
+                except Exception as e:
+                    logging.exception(f'VIDEO NEW COMMENT REPLY TO USER dropped with: \n {e}')
             else:
                 try:
                     bot.send_message(chat_id=CHAT_ID,
@@ -304,8 +306,9 @@ def listen():
             # User info
             User, urlid = type_of_user(event.obj.from_id)
             media = what_media(event.obj.attachments)
-            try:
-                if event.obj.reply_to_comment:
+
+            if event.obj.reply_to_comment:
+                try:
                     bot.send_message(chat_id=CHAT_ID,
                                      text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
                                           f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
@@ -314,8 +317,8 @@ def listen():
                                           f'{event.obj.reply_to_comment}">видеозаписи:</a>'
                                           f' <pre>{event.obj.text}</pre> {media}',
                                      parse_mode='HTML', disable_web_page_preview=True)
-            except Exception as e:
-                logging.exception(f'VIDEO COMMENT EDIT REPLY TO USER dropped with: \n {e}')
+                except Exception as e:
+                    logging.exception(f'VIDEO COMMENT EDIT REPLY TO USER dropped with: \n {e}')
             else:
                 try:
                     bot.send_message(chat_id=CHAT_ID,
