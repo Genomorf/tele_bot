@@ -10,12 +10,12 @@ import time
 DAMN = "197381393" # for test
 VEG = "139197081" # for prod
 GROUP_ID = VEG
-CHAT_ID = "-499740425"
+CHAT_ID = "-499017057"
 TOKEN_DAMN = "fdf63f1dae61a44e0a285c4c5e977041a38fb1ac98445f835879c49fb3f7513089320970689db9ebd6da2" # for test
 TOKEN_VEG = "ed7f1b64be582e8a81a824b0a5572d9b65f336aa726c58915583419ebfa66c47e004f191d4201ae24f8f5" # for prod
 
 # telegram auth
-bot = telebot.TeleBot("937690414:AAG5Rnnbmc8ovvo9PCyVorZ1W_rr2d6fh24", threaded=True)
+bot = telebot.TeleBot("721671579:AAFR4Fpn-xkJnyr8cDunU9fXRvCE7QsNlB8", threaded=True)
 
 # vk auth
 vk_session = vk_api.VkApi(token=TOKEN_VEG)
@@ -29,7 +29,7 @@ WEBHOOK_LISTEN = '0.0.0.0'  # На некоторых серверах прид�
 WEBHOOK_SSL_CERT = '../webhook_cert.pem'  # Путь к сертификату
 WEBHOOK_SSL_PRIV = '../webhook_pkey.pem'  # Путь к приватному ключу
 WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
-WEBHOOK_URL_PATH = "/%s/" % (token1)
+WEBHOOK_URL_PATH = "/%s/" % ("937690414:AAG5Rnnbmc8ovvo9PCyVorZ1W_rr2d6fh24")
 
 # logger 
 logging.basicConfig(format=u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
@@ -385,7 +385,10 @@ def listen():
 # handler for user commands from telegram         
 @bot.message_handler(commands=['check'])
 def send_check_message(message):
-        bot.send_message(chat_id=ChatId, text='OK')
+    if threading.Thread.is_alive(t1):
+        bot.send_message(chat_id=CHAT_ID, text='OK')
+    else:
+        bot.send_message(chat_id=CHAT_ID, text='dead :(')
       
 bot.remove_webhook()
 bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH,
