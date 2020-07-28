@@ -50,7 +50,7 @@ class WebhookServer(object):
         else:
             raise cherrypy.HTTPError(403)
             
-            
+# check type of user           
 def type_of_user(userid):
 
     # user is group
@@ -82,6 +82,7 @@ def type_of_user(userid):
             logging.exception(f'Function "type_of_user(common user) dropped with id: {userid}')
 
 
+# check type of media
 def what_media(ev_obj_attachments):
 
     # check attachments for objects
@@ -98,6 +99,26 @@ def what_media(ev_obj_attachments):
         logging.exception(f'What media func dropped with: \n {e}')
 
 
+# check if photo already exists on the wall to prevent double posting bug
+def check_post(photo_id):
+    url = requests.get(f'https://vk.com/veganim')
+    soup = bs4.BeautifulSoup(url.text, features="html.parser")
+    
+    # if the photo on the main page
+    if soup.findAll('a', {'data-photo-id': f'-{GROUP_ID}_{photo_id}'}):
+        # if the photo in album's block
+        if soup.findAll('a', {'data-photo-id': f'-{GROUP_ID}_{photo_id}'})[0]['class']\
+                == ['page_square_photo', 'crisp_image']:
+            return True
+    
+    # if the photo on the wall with post
+    if soup.findAll('a', {'data-photo-id': f'-{GROUP_ID}_{photo_id}'}):
+        return False
+    
+    # if everything else will happen
+    return True
+  
+  
 # main vk loop
 def listen():
     for event in longpoll.listen():
@@ -195,7 +216,6 @@ def listen():
         if event.type == VkBotEventType.PHOTO_NEW:
             # User info
             User, urlid = type_of_user(event.obj.user_id)
-
             try:
                 bot.send_message(chat_id=CHAT_ID,
                                  text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
@@ -206,60 +226,62 @@ def listen():
             except Exception as e:
                 logging.exception(f'PHOTO NEW dropped with: \n {e}')
         if event.type == VkBotEventType.PHOTO_COMMENT_NEW:
-            # User info
-            User, urlid = type_of_user(event.obj.from_id)
-            media = what_media(event.obj.attachments)
+            if check_post(event.obj.photo_id):
+                # User info
+                User, urlid = type_of_user(event.obj.from_id)
+                media = what_media(event.obj.attachments)
 
-            if event.obj.reply_to_comment:
-                try:
-                    bot.send_message(chat_id=CHAT_ID,
-                                     text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
-                                          f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a>'
-                                          f' добавил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
-                                          f'{event.obj.photo_id}?reply={event.obj.id}&thread='
-                                          f'{event.obj.reply_to_commet}">фотографии:</a> '
-                                          f'<pre>{event.object.text}</pre> {media}',
-                                     parse_mode='HTML', disable_web_page_preview=True)
-                except Exception as e:
-                    logging.exception(f'PHOTO COMMENT REPLY TO USER dropped with: \n {e}')
-            else:
-                try:
-                    bot.send_message(chat_id=CHAT_ID,
-                                     text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
-                                          f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a> '
-                                          f'добавил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
-                                          f'{event.obj.photo_id}?reply={event.obj.id}">фотографии:</a> '
-                                          f'<pre>{event.object.text}</pre> {media}',
-                                     parse_mode='HTML', disable_web_page_preview=True)
-                except Exception as e:
-                    logging.exception(f'PHOTO COMMENT DROPPED dropped with: \n {e}')
+                if event.obj.reply_to_comment:
+                    try:
+                        bot.send_message(chat_id=CHAT_ID,
+                                         text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
+                                              f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a>'
+                                              f' добавил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
+                                              f'{event.obj.photo_id}?reply={event.obj.id}&thread='
+                                              f'{event.obj.reply_to_commet}">фотографии:</a> '
+                                              f'<pre>{event.object.text}</pre> {media}',
+                                         parse_mode='HTML', disable_web_page_preview=True)
+                    except Exception as e:
+                        logging.exception(f'PHOTO COMMENT REPLY TO USER dropped with: \n {e}')
+                else:
+                    try:
+                        bot.send_message(chat_id=CHAT_ID,
+                                         text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
+                                              f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a> '
+                                              f'добавил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
+                                              f'{event.obj.photo_id}?reply={event.obj.id}">фотографии:</a> '
+                                              f'<pre>{event.object.text}</pre> {media}',
+                                         parse_mode='HTML', disable_web_page_preview=True)
+                    except Exception as e:
+                        logging.exception(f'PHOTO COMMENT DROPPED dropped with: \n {e}')
         if event.type == VkBotEventType.PHOTO_COMMENT_EDIT:
-            # User info
-            User, urlid = type_of_user(event.obj.from_id)
-            media = what_media(event.obj.attachments)
-            if event.obj.reply_to_comment:
-                try:
-                    bot.send_message(chat_id=CHAT_ID,
-                                     text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
-                                          f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
-                                          f'</a> изменил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
-                                          f'{event.obj.photo_id}?reply={event.obj.id}&thread='
-                                          f'{event.obj.reply_to_comment}">фотографии:</a>'
-                                          f' <pre>{event.object.text}</pre> {media}',
-                                     parse_mode='HTML', disable_web_page_preview=True)
-                except Exception as e:
-                    logging.exception(f'PHOTO COMMENT EDIT RELY TO USER dropped with: \n {e}')
-            else:
-                try:
-                    bot.send_message(chat_id=CHAT_ID,
-                                     text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
-                                          f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
-                                          f'</a> изменил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
-                                          f'{event.obj.photo_id}?reply={event.obj.id}">фотографии:</a>'
-                                          f' <pre>{event.object.text}</pre> {media}',
-                                     parse_mode='HTML', disable_web_page_preview=True)
-                except Exception as e:
-                    logging.exception(f'PHOTO COMMENT EDIT dropped with: \n {e}')
+            if check_post(event.obj.photo_id):
+                # User info
+                User, urlid = type_of_user(event.obj.from_id)
+                media = what_media(event.obj.attachments)
+                if event.obj.reply_to_comment:
+                    try:
+                        bot.send_message(chat_id=CHAT_ID,
+                                         text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
+                                              f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
+                                              f'</a> изменил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
+                                              f'{event.obj.photo_id}?reply={event.obj.id}&thread='
+                                              f'{event.obj.reply_to_comment}">фотографии:</a>'
+                                              f' <pre>{event.object.text}</pre> {media}',
+                                         parse_mode='HTML', disable_web_page_preview=True)
+                    except Exception as e:
+                        logging.exception(f'PHOTO COMMENT EDIT RELY TO USER dropped with: \n {e}')
+                else:
+                    try:
+                        bot.send_message(chat_id=CHAT_ID,
+                                         text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
+                                              f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
+                                              f'</a> изменил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
+                                              f'{event.obj.photo_id}?reply={event.obj.id}">фотографии:</a>'
+                                              f' <pre>{event.object.text}</pre> {media}',
+                                         parse_mode='HTML', disable_web_page_preview=True)
+                    except Exception as e:
+                        logging.exception(f'PHOTO COMMENT EDIT dropped with: \n {e}')
         if event.type == VkBotEventType.VIDEO_NEW:
             User, urlid = type_of_user(event.obj.owner_id)
 
