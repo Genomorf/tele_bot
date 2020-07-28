@@ -6,6 +6,9 @@ import threading
 import logging
 import time
 import cherrypy
+import requests
+import bs4
+
 # CONSTANTS
 DAMN = "197381393" # for test
 VEG = "139197081" # for prod
