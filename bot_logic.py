@@ -7,18 +7,18 @@ import logging
 import time
 
 # CONSTANTS
-DAMN = "197381393"
-VEG = "139197081"
-GROUP_ID = DAMN
+DAMN = "197381393" # for test
+VEG = "139197081" # for prod
+GROUP_ID = VEG
 CHAT_ID = "-499740425"
-TOKEN_DAMN = "fdf63f1dae61a44e0a285c4c5e977041a38fb1ac98445f835879c49fb3f7513089320970689db9ebd6da2"
-TOKEN_VEG = "ed7f1b64be582e8a81a824b0a5572d9b65f336aa726c58915583419ebfa66c47e004f191d4201ae24f8f5"
+TOKEN_DAMN = "fdf63f1dae61a44e0a285c4c5e977041a38fb1ac98445f835879c49fb3f7513089320970689db9ebd6da2" # for test
+TOKEN_VEG = "ed7f1b64be582e8a81a824b0a5572d9b65f336aa726c58915583419ebfa66c47e004f191d4201ae24f8f5" # for prod
 
 # telegram auth
 bot = telebot.TeleBot("937690414:AAG5Rnnbmc8ovvo9PCyVorZ1W_rr2d6fh24", threaded=True)
 
 # vk auth
-vk_session = vk_api.VkApi(token=TOKEN_DAMN)
+vk_session = vk_api.VkApi(token=TOKEN_VEG)
 vk = vk_session.get_api()
 longpoll = VkBotLongPoll(vk_session, GROUP_ID)
 
