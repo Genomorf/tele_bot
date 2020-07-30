@@ -28,4 +28,10 @@ def status_bot(message):
     res = subprocess.run(["sudo", "systemctl", "status", "tgbot"], stdout=subprocess.PIPE)
     res1 = 'status: '
     bot.reply_to(message,res1 + str(res.stdout))
+			
+@bot.message_handler(commands=["journal"])
+def status_bot(message):
+    res = subprocess.run(["sudo", "journalctl", "-u", "tgbot.service"], stdout=subprocess.PIPE)
+    res1 = 'status: '
+    bot.reply_to(message,res1 + str(res.stdout))
 bot.polling()
