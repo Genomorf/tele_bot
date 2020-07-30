@@ -99,7 +99,7 @@ def what_media(ev_obj_attachments):
         if type(ev_obj_attachments) is type(None):
             return media
         elif type(ev_obj_attachments) is not type(None):
-            media = f'\n<i>({ev_obj_attachments[0]["type"]})</i>'
+            media = f'<i>({ev_obj_attachments[0]["type"]})</i>'
            
             return media
     except Exception as e:
@@ -129,7 +129,7 @@ def check_post(photo_id):
 
 def food_detection(url_photo):
   try:
-      path_original_image = '\home\gena\tele_bot\img\t.jpg'
+      path_original_image = '/home/gena/tele_bot/img/t.jpg'
 
       # open photo from url and save
       urllib.request.urlretrieve(url_photo, path_original_image)
@@ -139,7 +139,7 @@ def food_detection(url_photo):
       image_name_noext = os.path.splitext(image_name)[0] # get the name without the extension
 
       # create the path where the new images will be saved as '.JPG'
-      path = "\home\gena\tele_bot\img\new\" + image_name_noext + '.jpg'
+      path = "/home/gena/tele_bot/img/new/" + image_name_noext + '.jpg'
       rgb_im.save(path)
 
       # get the width and the height
@@ -196,13 +196,14 @@ def listen():
             # reply to comment
             if event.obj.reply_to_comment:
                 try:
+                    
                     bot.send_message(chat_id=CHAT_ID,
                                      text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
                                           f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
                                           f'</a> добавил(а) <a href="https://vk.com/wall-{GROUP_ID}_'
                                           f'{event.object.post_id}?reply={event.object.id}&thread='
                                           f'{event.obj.parents_stack[0]}">комментарий на стене:</a> <pre>'
-                                          f'{event.obj.text}</pre> {media}',
+                                          f'{event.obj.text}</pre>\n{media}'
                                           f'{" ".join(food_detection(event.obj.attachments[0]["photo"]["sizes"][-1]["url"])) if media == "<i>(photo)</i>" else ""}',
                                      parse_mode='HTML', disable_web_page_preview=True)
                 except Exception as e:
@@ -214,7 +215,7 @@ def listen():
                                           f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
                                           f'</a> добавил(а) <a href="https://vk.com/wall-{GROUP_ID}_'
                                           f'{event.object.post_id}?reply={event.object.id}">комментарий на стене:'
-                                          f'</a> <pre>{event.obj.text}</pre> {media}'
+                                          f'</a> <pre>{event.obj.text}</pre>\n{media}'
                                           f' {" ".join(food_detection(event.obj.attachments[0]["photo"]["sizes"][-1]["url"])) if media == "<i>(photo)</i>" else ""}',
                                      parse_mode='HTML', disable_web_page_preview=True)
                 except Exception as e:
@@ -258,7 +259,7 @@ def listen():
                                       f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
                                       f'</a> добавил(а) <a href="https://vk.com/topic-{GROUP_ID}_'
                                       f'{event.object.topic_id}?post={event.object.id}">комментарий в обсуждении:'
-                                      f'</a> <pre>{event.obj.text}</pre> {media}'
+                                      f'</a> <pre>{event.obj.text}</pre>\n{media}'
                                       f'{" ".join(food_detection(event.obj.attachments[0]["photo"]["sizes"][-1]["url"])) if media == "<i>(photo)</i>" else ""}',
                                  parse_mode='HTML', disable_web_page_preview=True)
             except Exception as e:
@@ -286,7 +287,7 @@ def listen():
                                       f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
                                       f'</a> добавил(а) <a href="https://vk.com/photo-{GROUP_ID}_{event.obj.id}">'
                                       f'фотографию</a>'
-                                      f'{" ".join(food_detection(event.obj.sizes[-1]["url"]))}',
+                                      f'\n{" ".join(food_detection(event.obj.sizes[-1]["url"]))}',
                                  parse_mode='HTML', disable_web_page_preview=True)
             except Exception as e:
                 logging.exception(f'PHOTO NEW dropped with: \n {e}')
@@ -304,7 +305,7 @@ def listen():
                                               f' добавил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
                                               f'{event.obj.photo_id}?reply={event.obj.id}&thread='
                                               f'{event.obj.reply_to_commet}">фотографии:</a> '
-                                              f'<pre>{event.object.text}</pre> {media}'
+                                              f'<pre>{event.object.text}</pre>\n{media}'
                                               f'{" ".join(food_detection(event.obj.attachments[0]["photo"]["sizes"][-1]["url"])) if media == "<i>(photo)</i>" else ""}',
                                          parse_mode='HTML', disable_web_page_preview=True)
                     except Exception as e:
@@ -316,7 +317,8 @@ def listen():
                                               f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a> '
                                               f'добавил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
                                               f'{event.obj.photo_id}?reply={event.obj.id}">фотографии:</a> '
-                                              f'<pre>{event.object.text}</pre> {media}',
+                                              f'<pre>{event.object.text}</pre> {media}'
+                                              f'{" ".join(food_detection(event.obj.attachments[0]["photo"]["sizes"][-1]["url"])) if media == "<i>(photo)</i>" else ""}',
                                          parse_mode='HTML', disable_web_page_preview=True)
                     except Exception as e:
                         logging.exception(f'PHOTO COMMENT DROPPED dropped with: \n {e}')
