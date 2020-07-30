@@ -11,7 +11,7 @@ import time
 # first thread is vk longpoll listner
 t1 = threading.Thread(target=vk_module.listen)
 t1.start()
-logging.info("Vk longpoll started")
+log_module.logging.info("Vk longpoll started")
  # handler for user commands from telegram         
 @tg_module.bot.message_handler(commands=['check'])
 def send_check_message(message):
@@ -23,7 +23,7 @@ def send_check_message(message):
 # second thread is telegram handler
 t2 = threading.Thread(target=tg_module.Webhook_listen)
 t2.start()
-logging.info("Telegram webhook started")
+log_module.logging.info("Telegram webhook started")
 
 # while true loop to ignore crashes
 while True:
@@ -32,9 +32,9 @@ while True:
         if not(threading.Thread.is_alive(t1)):
             t1 = threading.Thread(target=vk_module.listen)
             t1.start()
-            logging.info('Vk longpoll have started from the loop')
+            log_module.logging.info('Vk longpoll have started from the loop')
     except Exception as e:
-        logging.exception(f'Couldn\'t start Vk lonpoll from the loop with: \n {e}')
+        log_module.logging.exception(f'Couldn\'t start Vk lonpoll from the loop with: \n {e}')
     try:
         time.sleep(60)
         if not(threading.Thread.is_alive(t2)):
@@ -43,6 +43,6 @@ while True:
             t2.start()
             print('Telegram webhook have started from the loop')
     except Exception as e:
-        logging.exception(f'Couldn\'t start telegram webhook from the loop with: \n {e}')
+        log_module.logging.exception(f'Couldn\'t start telegram webhook from the loop with: \n {e}')
 
 
