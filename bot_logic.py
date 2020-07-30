@@ -9,6 +9,9 @@ import time
 import cherrypy
 import requests
 import bs4
+import urllib.request
+import os
+from PIL import Image
 
 # CONSTANTS
 DAMN = "197381393" # for test
