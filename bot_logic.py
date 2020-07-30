@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import telebot
@@ -96,7 +97,7 @@ def what_media(ev_obj_attachments):
             return media
         elif type(ev_obj_attachments) is not type(None):
             media = f'\n<i>({ev_obj_attachments[0]["type"]})</i>'
-            print(media)
+           
             return media
     except Exception as e:
         logging.exception(f'What media func dropped with: \n {e}')
@@ -104,22 +105,74 @@ def what_media(ev_obj_attachments):
 
 # check if photo already exists on the wall to prevent double posting bug
 def check_post(photo_id):
-    url = requests.get(f'https://vk.com/veganim')
+    photo_id = str(photo_id)
+    url = requests.get('https://vk.com/veganim')
     soup = bs4.BeautifulSoup(url.text, features="html.parser")
-    
     # if the photo on the main page
-    if soup.findAll('a', {'data-photo-id': f'-{GROUP_ID}_{photo_id}'}):
-        # if the photo in album's block
-        if soup.findAll('a', {'data-photo-id': f'-{GROUP_ID}_{photo_id}'})[0]['class']\
-                == ['page_square_photo', 'crisp_image']:
+    if soup.findAll('div', {'data-id': f'-{GROUP_ID}_{photo_id}'}):
+        # if the photo in album's blocl
+        if soup.findAll('div', {'data-id': f'-{GROUP_ID}_{photo_id}'})[0]['class'] == ['page_square_photo', 'crisp_image']:
+            logging.info('check1')
             return True
-    
+
     # if the photo on the wall with post
-    if soup.findAll('a', {'data-photo-id': f'-{GROUP_ID}_{photo_id}'}):
+    if soup.findAll('div', {'data-id': f'-{GROUP_ID}_{photo_id}'}):
+        logging.info('check2')
         return False
-    
+
     # if everything else will happen
+    logging.info('check3')
     return True
+
+def food_detection(url_photo):
+    path_original_image = '\home\gena\tele_bot\img\t.jpg'
+
+    # open photo from url and save
+    urllib.request.urlretrieve(url_photo, path_original_image)
+    im = Image.open(path_original_image)  # open
+    rgb_im = im.convert('RGB')  # convert to RGB
+    image_name = os.path.basename(path_original_image)  # get the name of the image
+    image_name_noext = os.path.splitext(image_name)[0] # get the name without the extension
+
+    # create the path where the new images will be saved as '.JPG'
+    path = "\home\gena\tele_bot\img\new\" + image_name_noext + '.jpg'
+    rgb_im.save(path)
+
+    # get the width and the height
+    width, height = rgb_im.size
+    size_mb = os.path.getsize(path) >> 20
+    while (size_mb >= 1):
+        # resize th image 75%
+        size = int(width * 0.75), int(height * 0.75)
+        rez_image = rgb_im.resize(size, Image.ANTIALIAS)
+        # save the resized image
+        rez_image.save(path)
+        # get the size in MB
+        size_mb = os.path.getsize(path) >> 20
+    # LogMeal API
+    api_user_token = '4fe6f02673a4abb10d396669713d476122f6c60b'
+    headers = {'Authorization': 'Bearer ' + api_user_token}
+    url = 'https://api.logmeal.es/v2/recognition/dish'
+    resp = requests.post(url, files={'image': open(path, 'rb')}, headers=headers)
+    list_of_food = ['_empty_', 'meat', 'seafood', 'fish', 'fried food']
+
+    # if photo is food
+    if resp.json()['foodType'][0]['name'] == ('food' or '_empty_'):
+
+        # if photo in meat product group
+        if resp.json()['foodFamily'][0]['name'] in list_of_food\
+                and resp.json()['recognition_results'][0]['prob'] > 0.2:
+            # delete photo
+            os.remove(path)
+            # add group info if it's exist
+            food_group = '(' + resp.json()['foodFamily'][0]['name'] + ')'\
+            if resp.json()['foodFamily'][0]['name'] != '_empty_' else ''
+            
+            return ("\nBot Warning! Photo may contain not vegan food: " +
+                    food_group,
+                    resp.json()['recognition_results'][0]['name'])
+    os.remove(path)
+    return ' '
   
   
 # main vk loop
@@ -145,6 +198,7 @@ def listen():
                                           f'{event.object.post_id}?reply={event.object.id}&thread='
                                           f'{event.obj.parents_stack[0]}">комментарий на стене:</a> <pre>'
                                           f'{event.obj.text}</pre> {media}',
+                                          f'{" ".join(food_detection(event.obj.attachments[0]["photo"]["sizes"][-1]["url"])) if media == "<i>(photo)</i>" else ""}',
                                      parse_mode='HTML', disable_web_page_preview=True)
                 except Exception as e:
                     logging.exception(f'WALL RELPY TO USER dropped with: \n {e}')
@@ -155,7 +209,8 @@ def listen():
                                           f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
                                           f'</a> добавил(а) <a href="https://vk.com/wall-{GROUP_ID}_'
                                           f'{event.object.post_id}?reply={event.object.id}">комментарий на стене:'
-                                          f'</a> <pre>{event.obj.text}</pre> {media}',
+                                          f'</a> <pre>{event.obj.text}</pre> {media}'
+                                          f' {" ".join(food_detection(event.obj.attachments[0]["photo"]["sizes"][-1]["url"])) if media == "<i>(photo)</i>" else ""}',
                                      parse_mode='HTML', disable_web_page_preview=True)
                 except Exception as e:
                     logging.exception(f'WALL REPLY dropped with: \n {e}')
@@ -198,7 +253,8 @@ def listen():
                                       f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
                                       f'</a> добавил(а) <a href="https://vk.com/topic-{GROUP_ID}_'
                                       f'{event.object.topic_id}?post={event.object.id}">комментарий в обсуждении:'
-                                      f'</a> <pre>{event.obj.text}</pre> {media}',
+                                      f'</a> <pre>{event.obj.text}</pre> {media}'
+                                      f'{" ".join(food_detection(event.obj.attachments[0]["photo"]["sizes"][-1]["url"])) if media == "<i>(photo)</i>" else ""}',
                                  parse_mode='HTML', disable_web_page_preview=True)
             except Exception as e:
                 logging.exception(f'BOARD POST NEW dropped with: \n {e}')
@@ -224,7 +280,8 @@ def listen():
                                  text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
                                       f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}'
                                       f'</a> добавил(а) <a href="https://vk.com/photo-{GROUP_ID}_{event.obj.id}">'
-                                      f'фотографию</a>',
+                                      f'фотографию</a>'
+                                      f'{" ".join(food_detection(event.obj.sizes[-1]["url"]))}',
                                  parse_mode='HTML', disable_web_page_preview=True)
             except Exception as e:
                 logging.exception(f'PHOTO NEW dropped with: \n {e}')
@@ -242,7 +299,8 @@ def listen():
                                               f' добавил(а) комментарий к <a href="https://vk.com/photo-{GROUP_ID}_'
                                               f'{event.obj.photo_id}?reply={event.obj.id}&thread='
                                               f'{event.obj.reply_to_commet}">фотографии:</a> '
-                                              f'<pre>{event.object.text}</pre> {media}',
+                                              f'<pre>{event.object.text}</pre> {media}'
+                                              f'{" ".join(food_detection(event.obj.attachments[0]["photo"]["sizes"][-1]["url"])) if media == "<i>(photo)</i>" else ""}',
                                          parse_mode='HTML', disable_web_page_preview=True)
                     except Exception as e:
                         logging.exception(f'PHOTO COMMENT REPLY TO USER dropped with: \n {e}')
@@ -364,7 +422,8 @@ def listen():
                                      text=f'В сообществе <b>"Веганим Вместе"</b> <a href="https://vk.com/{urlid}'
                                           f'{User[0]["id"]}">{User[0]["first_name"]} {User[0]["last_name"]}</a> '
                                           f'предложил(а) новую <a href="https://vk.com/'
-                                          f'wall-{GROUP_ID}_{event.obj.id}">запись:</a> <pre>{event.obj.text}</pre> {media}',
+                                          f'wall-{GROUP_ID}_{event.obj.id}">запись:</a> <pre>{event.obj.text}</pre> {media}'
+                                          f'{" ".join(food_detection(event.obj.attachments[0]["photo"]["sizes"][-1]["url"])) if media == "<i>(photo)</i>" else ""}',
                                      parse_mode='HTML', disable_web_page_preview=True)
                 except Exception as e:
                     logging.exception(f'WALL POST SUGGEST dropped with: \n {e}')
