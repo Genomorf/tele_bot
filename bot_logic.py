@@ -12,7 +12,7 @@ import bs4
 import urllib.request
 import os
 from PIL import Image
-
+#git test
 # CONSTANTS
 DAMN = "197381393" # for test
 VEG = "139197081" # for prod
