@@ -1,13 +1,12 @@
 import telebot
 import cherrypy
-bot = telebot.TeleBot("721671579:AAFR4Fpn-xkJnyr8cDunU9fXRvCE7QsNlB8", threaded=True)
-CHAT_ID = "-499017057"
+
 # WEBHOOK
 WEBHOOK_HOST = '83.220.175.88'
-WEBHOOK_PORT = 443 # 443, 80, 88 или 8443 (порт должен быть открыт!)
-WEBHOOK_LISTEN = '0.0.0.0'  # На некоторых серверах придется указывать такой же IP, что и выше
-WEBHOOK_SSL_CERT = '../webhook_cert.pem'  # Путь к сертификату
-WEBHOOK_SSL_PRIV = '../webhook_pkey.pem'  # Путь к приватному ключу
+WEBHOOK_PORT = 443 
+WEBHOOK_LISTEN = '0.0.0.0'  
+WEBHOOK_SSL_CERT = '../webhook_cert.pem'  
+WEBHOOK_SSL_PRIV = '../webhook_pkey.pem'  
 WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
 WEBHOOK_URL_PATH = "/%s/" % ("721671579:AAFR4Fpn-xkJnyr8cDunU9fXRvCE7QsNlB8")
 
