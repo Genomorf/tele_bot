@@ -12,8 +12,7 @@ DAMN = "197381393" # for test
 VEG = "139197081" # for prod
 GROUP_ID = VEG
 
-TOKEN_DAMN = "fdf63f1dae61a44e0a285c4c5e977041a38fb1ac98445f835879c49fb3f7513089320970689db9ebd6da2" # for test
-TOKEN_VEG = "ed7f1b64be582e8a81a824b0a5572d9b65f336aa726c58915583419ebfa66c47e004f191d4201ae24f8f5" # for prod
+
 # vk auth
 vk_session = vk_api.VkApi(token=TOKEN_VEG)
 vk = vk_session.get_api()
