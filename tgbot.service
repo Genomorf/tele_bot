@@ -1,6 +1,7 @@
 Description=Telegram Bot
 After=network.target
-
+# root is bad for security :(
+# need to fix
 [Service]
 User=root
 Group=root
